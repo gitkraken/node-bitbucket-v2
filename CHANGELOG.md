@@ -2,6 +2,8 @@
 
 ## 1.0.0
  - Transfered ownership of the repository to the "GitKraken" GitHub organization.
+ - BREAKING CHANGE: Node 7.6 is no longer supported - please use Node 22 (or something reasonably new).
+ - WIP need to fix the API for deprecation
 
 ## 0.6.0
 Thanks to [@andrewyalung](https://github.com/andrewyalung/) for authoring most of this version!

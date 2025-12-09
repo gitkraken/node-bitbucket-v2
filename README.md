@@ -2,7 +2,6 @@
 node.js library to access the Bitbucket API v2
 
 ## usage
-Not supported for Node < 7.6
 
 ```
 const Bitbucket = require('node-bitbucket-v2');

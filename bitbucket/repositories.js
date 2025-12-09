@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const constants = require('./constants');
 const { extractResponseBody } = require('./helpers');
 
@@ -17,7 +15,7 @@ module.exports = function RepositoriesApi(api) {
      *                         Due to limitations in the API, the slug is derived from the repo name within this method.
      */
     create: (workspace, repo) => {
-      if (!repo || !_.isBoolean(repo.is_private) || !_.isString(repo.name)) {
+      if (!repo || typeof repo.isPrivate !== 'boolean' || typeof repo.name !== 'string') {
         throw new Error('Repo must be initialized with a booelan privacy setting and a string name');
       }
 
@@ -71,8 +69,8 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} workspace workspace UUID or slug
      * @param {String} slug (name) of the repo.
      */
-    getBranches: (workspace, repoSlug) =>
-      api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/refs/branches`),
+    getBranches: (workspace, repoSlug) => api
+      .get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/refs/branches`),
 
     /**
      * Get a single commit
@@ -80,8 +78,8 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} slug (name) of the repo.
      * @param {String} the sha of the commit
      */
-    getCommit: (workspace, repoSlug, sha) =>
-      api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/commit/${sha}`),
+    getCommit: (workspace, repoSlug, sha) => api
+      .get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/commit/${sha}`),
 
     /**
      * Get the pull requests for a single repo
@@ -95,11 +93,11 @@ module.exports = function RepositoriesApi(api) {
       if (!stateArray) {
         stateArray = [constants.pullRequest.states.OPEN];
       }
-      else if (!_.isArray(stateArray)) {
+      else if (!Array.isArray(stateArray)) {
         stateArray = [stateArray];
       }
 
-      const hasInvalidState = _.find(state, (stateElement) => !_.includes(constants.pullRequest.states, stateElement));
+      const hasInvalidState = stateArray.find((stateElement) => !constants.pullRequest.states[stateElement]);
       if (hasInvalidState) {
         stateArray = [constants.pullRequest.states.OPEN];
       }
@@ -123,7 +121,7 @@ module.exports = function RepositoriesApi(api) {
      * @param {Object} options The fields to populate, and optionally the PR state (defaults to OPEN)
      */
     getPullRequestsWithFields: (workspace, repoSlug, { state, fields } = {}) => {
-      if (!_.isArray(fields) || fields.length < 1) {
+      if (!Array.isArray(fields) || fields.length < 1) {
         throw new Error('getPullRequestsWithFields: options argument missing or has missing/empty \'fields\' array.');
       }
 
@@ -131,11 +129,11 @@ module.exports = function RepositoriesApi(api) {
       if (!stateArray) {
         stateArray = [constants.pullRequest.states.OPEN];
       }
-      else if (!_.isArray(stateArray)) {
+      else if (!Array.isArray(stateArray)) {
         stateArray = [stateArray];
       }
 
-      const hasInvalidState = _.find(state, (stateElement) => !_.includes(constants.pullRequest.states, stateElement));
+      const hasInvalidState = stateArray.find((stateElement) => !constants.pullRequest.states[stateElement]);
       if (hasInvalidState) {
         stateArray = [constants.pullRequest.states.OPEN];
       }
@@ -174,7 +172,7 @@ module.exports = function RepositoriesApi(api) {
      * @param {Object} response API response, or its `body` property
      */
     getForksFromResponse: (response) => {
-      const prebuiltURL = _.get(extractResponseBody(response), ['links', 'forks', 'href']);
+      const prebuiltURL = extractResponseBody(response)?.links?.forks?.href;
 
       if (!prebuiltURL) {
         throw new Error('getForksFromResponse: argument has no \'forks\' url.');
@@ -190,7 +188,7 @@ module.exports = function RepositoriesApi(api) {
      * @param {Object} response API response, or its `body` property
      */
     getParentFromResponse: (response) => {
-      const prebuiltURL = _.get(extractResponseBody(response), ['parent', 'links', 'self', 'href']);
+      const prebuiltURL = extractResponseBody(response)?.parent?.links?.self?.href;
 
       if (!prebuiltURL) {
         throw new Error(

@@ -1,8 +1,6 @@
+/* eslint-disable quote-props */
 module.exports = {
-  'extends': 'airbnb',
-  'plugins': [
-    'react'
-  ],
+  'extends': 'airbnb-base',
   'rules': {
     'arrow-parens': [2, 'always'],
     'brace-style': [2, 'stroustrup', { 'allowSingleLine': true }],
@@ -11,5 +9,8 @@ module.exports = {
     'linebreak-style': 0,
     'max-len': [2, { code: 120 }],
     'new-cap': [2, { 'capIsNewExceptions': ['AbstractApi', 'Repositories', 'Request', 'Teams', 'User'] }]
+  },
+  'parserOptions': {
+    'ecmaVersion': 2024
   }
 };

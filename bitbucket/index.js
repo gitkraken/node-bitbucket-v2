@@ -5,7 +5,6 @@ const buildUser = require('./user');
 const buildWorkspaces = require('./workspaces');
 const { extractResponseBody } = require('./helpers');
 
-
 /**
  * Simple JavaScript Bitbucket API v2
  *
@@ -19,8 +18,7 @@ module.exports = function Bitbucket({ proxy, requesterFn } = {}) {
   let $proxy_host;
   let $proxy_port;
   if (proxy) {
-    $proxy_host = proxy.split(':')[0];
-    $proxy_port = proxy.split(':')[1];
+    [$proxy_host, $proxy_port] = proxy.split(':');
   }
 
   const apiModel = {
@@ -59,7 +57,7 @@ module.exports = function Bitbucket({ proxy, requesterFn } = {}) {
    */
   apiModel.deAuthenticate = () => {
     apiModel.request
-        .setOption('login_type', 'none');
+      .setOption('login_type', 'none');
 
     return apiModel;
   };
@@ -72,8 +70,7 @@ module.exports = function Bitbucket({ proxy, requesterFn } = {}) {
    * @param {Object}  parameters       GET parameters
    * @param {Object}  requestOptions   reconfigure the request
    */
-  apiModel.get = (route, parameters, requestOptions) =>
-    apiModel.request.get(route, parameters || {}, requestOptions);
+  apiModel.get = (route, parameters, requestOptions) => apiModel.request.get(route, parameters || {}, requestOptions);
 
   /**
    * Call any route, DELETE method
@@ -83,8 +80,7 @@ module.exports = function Bitbucket({ proxy, requesterFn } = {}) {
    * @param {Object}  parameters       GET parameters
    * @param {Object}  requestOptions   reconfigure the request
    */
-  apiModel.delete = (route, parameters, requestOptions) =>
-    apiModel.request.delete(route, parameters, requestOptions);
+  apiModel.delete = (route, parameters, requestOptions) => apiModel.request.delete(route, parameters, requestOptions);
 
   /**
    * Call any route, POST method
@@ -94,8 +90,7 @@ module.exports = function Bitbucket({ proxy, requesterFn } = {}) {
    * @param {Object}  parameters       POST parameters
    * @param {Object}  requestOptions   reconfigure the request
    */
-  apiModel.post = (route, parameters, requestOptions) =>
-    apiModel.request.post(route, parameters || {}, requestOptions);
+  apiModel.post = (route, parameters, requestOptions) => apiModel.request.post(route, parameters || {}, requestOptions);
 
   /**
    * Check for whether we can iterate to another page using this.getNextPage(response).

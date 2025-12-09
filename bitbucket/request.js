@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const https = require('https');
 const querystring = require('querystring');
 const url = require('url');
@@ -24,14 +23,12 @@ module.exports = function Request(_options) {
     proxy_port: null,
     requester_fn: null
   };
-  const $options = _.defaults({}, _options, $defaults);
+  const $options = { ...$defaults, ..._options };
 
   const result = {
     $defaults,
-    $options
-  };
+    $options,
 
-  return _.assign(result, {
     /**
      * Change an option value.
      *
@@ -95,7 +92,6 @@ module.exports = function Request(_options) {
           method: 'GET',
           url: prebuiltURL
         };
-
 
         return $options.requester_fn(requesterOptions);
       }
@@ -252,5 +248,7 @@ module.exports = function Request(_options) {
 
       return resultPromise;
     }
-  });
+  };
+
+  return result;
 };
