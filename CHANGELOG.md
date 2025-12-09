@@ -1,5 +1,8 @@
 # CHANGLOG
 
+## 1.0.0
+ - Transfered ownership of the repository to the "GitKraken" GitHub organization.
+
 ## 0.6.0
 Thanks to [@andrewyalung](https://github.com/andrewyalung/) for authoring most of this version!
  - `requesterFn` has been added as an option. When `requesterFn` is provided, all request will be processed by that function.

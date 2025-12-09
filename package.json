@@ -1,16 +1,16 @@
 {
   "name": "bitbucket-v2",
-  "version": "0.6.0",
-  "description": "Wrapper for the BitBucket API v2, the version required to use OAuth2. Includes support for custom HTTP clients.",
-  "author": "Jordan Wallet <jjwallet@gmail.com>",
-  "homepage": "https://github.com/Mr-Wallet/node-bitbucket-v2.git",
+  "version": "1.0.0",
+  "description": "Wrapper for the BitBucket API v2. Includes support for custom HTTP clients.",
+  "author": "Jordan Wallet <jordan.wallet@gitkraken.com>",
+  "homepage": "https://github.com/gitkraken/node-bitbucket-v2.git",
   "main": "bitbucket/index.js",
   "scripts": {
     "lint": "eslint ./bitbucket --quiet"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/Mr-Wallet/node-bitbucket-v2.git"
+    "url": "http://github.com/gitkraken/node-bitbucket-v2.git"
   },
   "engine": [
     "node >=7.6.0"
