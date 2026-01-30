@@ -9,6 +9,6 @@ export default function buildWorkspacesApi(api: ApiModel) {
     /**
      * Get the workspaces for the authenticated user
      */
-    get: (): Promise<ApiResponse<PaginatedResponse<BitbucketWorkspace>>> => api.get('workspaces')
+    get: (): Promise<ApiResponse<PaginatedResponse<BitbucketWorkspace>>> => api.get('user/workspaces')
   };
 }
