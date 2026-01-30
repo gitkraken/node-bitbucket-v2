@@ -1,9 +1,11 @@
-# CHANGLOG
+# CHANGELOG
 
 ## 1.0.0
- - Transfered ownership of the repository to the "GitKraken" GitHub organization.
- - BREAKING CHANGE: Node 7.6 is no longer supported - please use Node 22 (or something reasonably new).
- - WIP need to fix the API for deprecation
+ - Transferred ownership of the repository to the "GitKraken" GitHub organization.
+ - Converted entire codebase to Typescript. The types for API responses have been defined according to current usage within the author's organization, and will be missing _many_ properties. If you encounter a problem, please open a pull request with expanded type definitions.
+ - **BREAKING CHANGE**: Node 7.6 is no longer supported - please use Node 22 (or something reasonably new).
+ - **BREAKING CHANGE**: Module export changed - use `require('bitbucket-v2').default` in CommonJS (was `require('bitbucket-v2')`).
+ - **BREAKING CHANGE**: Constructor is now a function call, not a class - use `Bitbucket(options)` instead of `new Bitbucket(options)`
 
 ## 0.6.0
 Thanks to [@andrewyalung](https://github.com/andrewyalung/) for authoring most of this version!

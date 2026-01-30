@@ -4,9 +4,19 @@
   "description": "Wrapper for the BitBucket API v2. Includes support for custom HTTP clients.",
   "author": "Jordan Wallet <jordan.wallet@gitkraken.com>",
   "homepage": "https://github.com/gitkraken/node-bitbucket-v2.git",
-  "main": "bitbucket/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "lint": "eslint ./bitbucket --quiet"
+    "build": "tsc",
+    "prepare": "npm run build",
+    "lint": "eslint ./src --ext .ts --quiet",
+    "format": "prettier --write ./src"
   },
   "repository": {
     "type": "git",
@@ -14,9 +24,15 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
     "eslint": "^8.2.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.2"
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.25.2",
+    "prettier": "^3.8.1",
+    "typescript": "^5.0.0"
   },
   "packageManager": "npm@10.9.3"
 }

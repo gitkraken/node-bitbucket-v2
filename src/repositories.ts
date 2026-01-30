@@ -1,11 +1,22 @@
-const constants = require('./constants');
-const { extractResponseBody } = require('./helpers');
+import { constants, PullRequestState } from './constants';
+import { extractResponseBody } from './helpers';
+import { ApiModel } from './index';
+import {
+  ApiResponse,
+  Repository,
+  PullRequest,
+  GetPullRequestsOptions,
+  BitbucketRepository,
+  BitbucketBranch,
+  BitbucketPullRequest,
+  PaginatedResponse
+} from './types';
 
 /**
  * API docs: https://confluence.atlassian.com/bitbucket/repositories-endpoint-423626330.html
  *           https://confluence.atlassian.com/bitbucket/repository-resource-423626331.html
  */
-module.exports = function RepositoriesApi(api) {
+export default function buildRepositoriesApi(api: ApiModel) {
   return {
     /**
      * Create a new repository
@@ -14,7 +25,7 @@ module.exports = function RepositoriesApi(api) {
      *                         NOTE Unlike the normal API, Including an explicit name property in repo is REQUIRED!!
      *                         Due to limitations in the API, the slug is derived from the repo name within this method.
      */
-    create: (workspace, repo) => {
+    create: (workspace: string, repo: Repository): Promise<ApiResponse<BitbucketRepository>> => {
       if (!repo || typeof repo.isPrivate !== 'boolean' || typeof repo.name !== 'string') {
         throw new Error('Repo must be initialized with a booelan privacy setting and a string name');
       }
@@ -37,10 +48,7 @@ module.exports = function RepositoriesApi(api) {
         .replace(/-$/, '')
         .toLowerCase();
 
-      return api.post(
-        `repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}`,
-        repo
-      );
+      return api.post(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}`, repo);
     },
 
     /**
@@ -50,10 +58,12 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} repoSlug (name) of the repo.
      * @param {Object} pullRequest The PR POST body as specified by Bitbucket's API documentation
      */
-    createPullRequest: (workspace, repoSlug, pullRequest) => api.post(
-      `repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/pullrequests`,
-      pullRequest
-    ),
+    createPullRequest: (
+      workspace: string,
+      repoSlug: string,
+      pullRequest: PullRequest
+    ): Promise<ApiResponse<BitbucketPullRequest>> =>
+      api.post(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/pullrequests`, pullRequest),
 
     /**
      * Get the info for a single repo
@@ -61,7 +71,8 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} workspace workspace UUID or slug
      * @param {String} slug (name) of the repo.
      */
-    get: (workspace, repoSlug) => api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}`),
+    get: (workspace: string, repoSlug: string): Promise<ApiResponse<BitbucketRepository>> =>
+      api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}`),
 
     /**
      * Get the branch info for a single repo
@@ -69,8 +80,8 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} workspace workspace UUID or slug
      * @param {String} slug (name) of the repo.
      */
-    getBranches: (workspace, repoSlug) => api
-      .get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/refs/branches`),
+    getBranches: (workspace: string, repoSlug: string): Promise<ApiResponse<PaginatedResponse<BitbucketBranch>>> =>
+      api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/refs/branches`),
 
     /**
      * Get a single commit
@@ -78,8 +89,8 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} slug (name) of the repo.
      * @param {String} the sha of the commit
      */
-    getCommit: (workspace, repoSlug, sha) => api
-      .get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/commit/${sha}`),
+    getCommit: (workspace: string, repoSlug: string, sha: string): Promise<ApiResponse<any>> =>
+      api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/commit/${sha}`),
 
     /**
      * Get the pull requests for a single repo
@@ -88,28 +99,28 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} slug (name) of the repo.
      * @param {constants.pullRequest.states or Array thereof} The PR state. If invalid or undefined, defaults to OPEN
      */
-    getPullRequests: (workspace, repoSlug, state) => {
-      let stateArray = state;
-      if (!stateArray) {
-        stateArray = [constants.pullRequest.states.OPEN];
-      }
-      else if (!Array.isArray(stateArray)) {
-        stateArray = [stateArray];
+    getPullRequests: (
+      workspace: string,
+      repoSlug: string,
+      state?: PullRequestState | PullRequestState[]
+    ): Promise<ApiResponse<PaginatedResponse<BitbucketPullRequest>>> => {
+      let stateArray: string[] = [constants.pullRequest.states.OPEN];
+      if (state) {
+        stateArray = Array.isArray(state) ? state : [state];
       }
 
-      const hasInvalidState = stateArray.find((stateElement) => !constants.pullRequest.states[stateElement]);
+      const hasInvalidState = stateArray.find(
+        (stateElement: string) => !Object.values(constants.pullRequest.states).includes(stateElement as any)
+      );
       if (hasInvalidState) {
         stateArray = [constants.pullRequest.states.OPEN];
       }
 
-      const apiParameters = {
+      const apiParameters: Record<string, any> = {
         state: stateArray.join(',')
       };
 
-      return api.get(
-        `repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/pullrequests`,
-        apiParameters
-      );
+      return api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/pullrequests`, apiParameters);
     },
 
     /**
@@ -120,35 +131,37 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} repoSlug (name) of the repo.
      * @param {Object} options The fields to populate, and optionally the PR state (defaults to OPEN)
      */
-    getPullRequestsWithFields: (workspace, repoSlug, { state, fields } = {}) => {
+    getPullRequestsWithFields: (
+      workspace: string,
+      repoSlug: string,
+      options: GetPullRequestsOptions = {}
+    ): Promise<ApiResponse<PaginatedResponse<BitbucketPullRequest>>> => {
+      const { state, fields } = options;
+
       if (!Array.isArray(fields) || fields.length < 1) {
-        throw new Error('getPullRequestsWithFields: options argument missing or has missing/empty \'fields\' array.');
+        throw new Error("getPullRequestsWithFields: options argument missing or has missing/empty 'fields' array.");
       }
 
-      let stateArray = state;
-      if (!stateArray) {
-        stateArray = [constants.pullRequest.states.OPEN];
-      }
-      else if (!Array.isArray(stateArray)) {
-        stateArray = [stateArray];
+      let stateArray: string[] = [constants.pullRequest.states.OPEN];
+      if (state) {
+        stateArray = Array.isArray(state) ? state : [state];
       }
 
-      const hasInvalidState = stateArray.find((stateElement) => !constants.pullRequest.states[stateElement]);
+      const hasInvalidState = stateArray.find(
+        (stateElement: string) => !Object.values(constants.pullRequest.states).includes(stateElement as any)
+      );
       if (hasInvalidState) {
         stateArray = [constants.pullRequest.states.OPEN];
       }
 
-      const apiParameters = {
+      const apiParameters: Record<string, any> = {
         state: stateArray.join(',')
       };
 
-      const fieldsWithEncodedPlus = fields.map((field) => `+${field}`);
+      const fieldsWithEncodedPlus = fields.map((field: string) => `+${field}`);
       apiParameters.fields = fieldsWithEncodedPlus.join(',');
 
-      return api.get(
-        `repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/pullrequests`, // eslint-disable-line max-len
-        apiParameters
-      );
+      return api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/pullrequests`, apiParameters);
     },
 
     /**
@@ -156,7 +169,8 @@ module.exports = function RepositoriesApi(api) {
      *
      * @param {String} workspace workspace UUID or slug
      */
-    getByWorkspace: (workspace) => api.get(`repositories/${encodeURI(workspace)}`),
+    getByWorkspace: (workspace: string): Promise<ApiResponse<PaginatedResponse<BitbucketRepository>>> =>
+      api.get(`repositories/${encodeURI(workspace)}`),
 
     /**
      * Get the forks for a repo
@@ -164,18 +178,22 @@ module.exports = function RepositoriesApi(api) {
      * @param {String} workspace workspace UUID or slug
      * @param {String} repoSlug (name) of the repo.
      */
-    getForks: (workspace, repoSlug) => api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/forks`),
+    getForks: (workspace: string, repoSlug: string): Promise<ApiResponse<PaginatedResponse<BitbucketRepository>>> =>
+      api.get(`repositories/${encodeURI(workspace)}/${encodeURI(repoSlug)}/forks`),
 
     /**
      * Get the forks for a repo using an API response that has repository links
      *
      * @param {Object} response API response, or its `body` property
      */
-    getForksFromResponse: (response) => {
-      const prebuiltURL = extractResponseBody(response)?.links?.forks?.href;
+    getForksFromResponse: (
+      response: BitbucketRepository
+    ): Promise<ApiResponse<PaginatedResponse<BitbucketRepository>>> => {
+      const body = extractResponseBody(response);
+      const prebuiltURL = body?.links?.forks?.href;
 
       if (!prebuiltURL) {
-        throw new Error('getForksFromResponse: argument has no \'forks\' url.');
+        throw new Error("getForksFromResponse: argument has no 'forks' url.");
       }
 
       return api.request.doPrebuiltSend(prebuiltURL);
@@ -187,12 +205,13 @@ module.exports = function RepositoriesApi(api) {
      *
      * @param {Object} response API response, or its `body` property
      */
-    getParentFromResponse: (response) => {
-      const prebuiltURL = extractResponseBody(response)?.parent?.links?.self?.href;
+    getParentFromResponse: (response: BitbucketRepository): Promise<ApiResponse<BitbucketRepository>> => {
+      const body = extractResponseBody(response);
+      const prebuiltURL = body?.parent?.links?.self?.href;
 
       if (!prebuiltURL) {
         throw new Error(
-          'getForksFromResponse: argument has no \'parent\' info. Call hasParent first to guard this method call.'
+          "getForksFromResponse: argument has no 'parent' info. Call hasParent first to guard this method call."
         );
       }
 
@@ -205,6 +224,7 @@ module.exports = function RepositoriesApi(api) {
      * @param {Object} response API response, or its `body` property
      * @return {boolean} true if the argument has an associated "parent" (i.e. the response is a fork), false otherwise.
      */
-    hasParent: (response) => Boolean(extractResponseBody(response).parent)
+    hasParent: (response: ApiResponse<BitbucketRepository> | BitbucketRepository): boolean =>
+      Boolean(extractResponseBody(response).parent)
   };
-};
+}
