@@ -26,7 +26,7 @@ export default function buildRepositoriesApi(api: ApiModel) {
      *                         Due to limitations in the API, the slug is derived from the repo name within this method.
      */
     create: (workspace: string, repo: Repository): Promise<ApiResponse<BitbucketRepository>> => {
-      if (!repo || typeof repo.isPrivate !== 'boolean' || typeof repo.name !== 'string') {
+      if (!repo || typeof repo.is_private !== 'boolean' || typeof repo.name !== 'string') {
         throw new Error('Repo must be initialized with a booelan privacy setting and a string name');
       }
 
