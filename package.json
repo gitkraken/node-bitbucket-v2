@@ -1,6 +1,6 @@
 {
   "name": "bitbucket-v2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Wrapper for the BitBucket API v2. Includes support for custom HTTP clients.",
   "author": "Jordan Wallet <jordan.wallet@gitkraken.com>",
   "homepage": "https://github.com/gitkraken/node-bitbucket-v2.git",

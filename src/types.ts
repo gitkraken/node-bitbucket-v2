@@ -124,13 +124,21 @@ export interface BitbucketUser {
 }
 
 export interface BitbucketWorkspace {
-  uuid: string;
-  slug: string;
-  name?: string;
-  links: {
-    avatar: { href: string };
-    html: { href: string };
-  };
+  type: 'workspace_access';
+  administrator: boolean;
+  workspace: {
+    type: 'workspace_base';
+    uuid: string;
+    slug: string;
+    links: {
+      avatar: {
+        href: string;
+      },
+      self: {
+        href: string;
+      },
+    },
+  }
 }
 
 // Input types for API methods
